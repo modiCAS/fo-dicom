@@ -106,20 +106,15 @@ namespace Dicom.Imaging {
 			if (dataset.Contains(DicomTag.WindowWidth) && dataset.Get<double>(DicomTag.WindowWidth) != 0.0) {
 				//If dataset contains WindowWidth and WindowCenter valid attributes used initially for the grayscale options
 				return FromWindowLevel(dataset);
-			} else if (dataset.Contains(DicomTag.SmallestImagePixelValue) && dataset.Contains(DicomTag.LargestImagePixelValue)) {
+			}
+			if (dataset.Contains(DicomTag.SmallestImagePixelValue) && dataset.Contains(DicomTag.LargestImagePixelValue)) {
 				//If dataset contains valid SmallesImagePixelValue and LargesImagePixelValue attributes, use range to calculate
 				//WindowWidth and WindowCenter
 				return FromImagePixelValueTags(dataset);
-			} else {
-				//If reached here, minimum and maximum pixel values calculated from pixels data to calculate
-				//WindowWidth and WindowCenter
-				return FromMinMax(dataset);
 			}
-
-			options.VOILUTFunction = dataset.Get<string>(DicomTag.VOILUTFunction, "LINEAR");
-			options.Monochrome1 = dataset.Get<PhotometricInterpretation>(DicomTag.PhotometricInterpretation) == PhotometricInterpretation.Monochrome1;
-
-			return options;
+			//If reached here, minimum and maximum pixel values calculated from pixels data to calculate
+			//WindowWidth and WindowCenter
+			return FromMinMax(dataset);
 		}
 
 		public static GrayscaleRenderOptions FromWindowLevel(DicomDataset dataset) {
