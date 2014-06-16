@@ -56,10 +56,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DICOM [Native]\x64\DICOM [Native64].vcxproj">
-      <Project>{FA9C7678-B9D9-46BC-8921-8152FD6787CA}</Project>
-      <Name>DICOM [Native64]</Name>
-    </ProjectReference>
     <ProjectReference Include="..\DICOM [Native]\x86\DICOM [Native].vcxproj">
       <Project>{C6148839-334D-4894-BDB9-E2D57438CF8A}</Project>
       <Name>DICOM [Native]</Name>
