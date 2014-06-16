@@ -737,15 +737,15 @@ opj_bool pi_create_encode( opj_pi_iterator_t *pi, opj_cp_t *cp,int tileno, int p
 	pi[pino].poc.prg = tcp->prg;
 
 	switch(tcp->prg){
-		case CPRL: strncpy(prog, "CPRL",4);
+		case CPRL: strncpy_s(prog, 4, "CPRL", 4);
 			break;
-		case LRCP: strncpy(prog, "LRCP",4);
+		case LRCP: strncpy_s(prog, 4, "LRCP", 4);
 			break;
-		case PCRL: strncpy(prog, "PCRL",4);
+		case PCRL: strncpy_s(prog, 4, "PCRL", 4);
 			break;
-		case RLCP: strncpy(prog, "RLCP",4);
+		case RLCP: strncpy_s(prog, 4, "RLCP", 4);
 			break;
-		case RPCL: strncpy(prog, "RPCL",4);
+		case RPCL: strncpy_s(prog, 4, "RPCL", 4);
 			break;
 		case PROG_UNKNOWN: 
 			return OPJ_TRUE;

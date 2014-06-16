@@ -125,11 +125,11 @@ void bio_destroy(opj_bio_t *bio) {
 	}
 }
 
-int bio_numbytes(opj_bio_t *bio) {
+size_t bio_numbytes(opj_bio_t *bio) {
 	return (bio->bp - bio->start);
 }
 
-void bio_init_enc(opj_bio_t *bio, unsigned char *bp, int len) {
+void bio_init_enc(opj_bio_t *bio, unsigned char *bp, size_t len) {
 	bio->start = bp;
 	bio->end = bp + len;
 	bio->bp = bp;
@@ -137,7 +137,7 @@ void bio_init_enc(opj_bio_t *bio, unsigned char *bp, int len) {
 	bio->ct = 8;
 }
 
-void bio_init_dec(opj_bio_t *bio, unsigned char *bp, int len) {
+void bio_init_dec(opj_bio_t *bio, unsigned char *bp, size_t len) {
 	bio->start = bp;
 	bio->end = bp + len;
 	bio->bp = bp;
@@ -145,10 +145,10 @@ void bio_init_dec(opj_bio_t *bio, unsigned char *bp, int len) {
 	bio->ct = 0;
 }
 
-void bio_write(opj_bio_t *bio, int v, int n) {
-	int i;
-	for (i = n - 1; i >= 0; i--) {
-		bio_putbit(bio, (v >> i) & 1);
+void bio_write(opj_bio_t *bio, size_t v, size_t n) {
+	size_t i;
+	for (i = n; i > 0; i--) {
+		bio_putbit(bio, (v >> (i-1)) & 1);
 	}
 }
 

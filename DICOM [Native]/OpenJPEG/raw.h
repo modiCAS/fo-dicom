@@ -78,7 +78,7 @@ Return the number of bytes written/read since initialisation
 @param raw RAW handle to destroy
 @return Returns the number of bytes already encoded
 */
-int raw_numbytes(opj_raw_t *raw);
+size_t raw_numbytes(opj_raw_t *raw);
 /**
 Initialize the decoder
 @param raw RAW handle

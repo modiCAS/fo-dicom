@@ -47,11 +47,12 @@
  * @param[in] cio       file output handle
  * @return              length of mhix box
  */
-int write_tilemhix( int coff, opj_codestream_info_t cstr_info, int tileno, opj_cio_t *cio);
+size_t write_tilemhix( size_t coff, opj_codestream_info_t cstr_info, int tileno, opj_cio_t *cio);
 
-int write_thix( int coff, opj_codestream_info_t cstr_info, opj_cio_t *cio)
+size_t write_thix( size_t coff, opj_codestream_info_t cstr_info, opj_cio_t *cio)
 {
-  int len, lenp, i;
+  size_t len, lenp;
+  int i;
   int tileno;
   opj_jp2_box_t *box;
 
@@ -83,12 +84,12 @@ int write_thix( int coff, opj_codestream_info_t cstr_info, opj_cio_t *cio)
   return len;
 }
 
-int write_tilemhix( int coff, opj_codestream_info_t cstr_info, int tileno, opj_cio_t *cio)
+size_t write_tilemhix( size_t coff, opj_codestream_info_t cstr_info, int tileno, opj_cio_t *cio)
 {
   int i;
   opj_tile_info_t tile;
   opj_tp_info_t tp;
-  int len, lenp;
+  size_t len, lenp;
   opj_marker_info_t *marker;
 
   lenp = cio_tell( cio);

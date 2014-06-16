@@ -96,7 +96,7 @@ void OPJ_CALLCONV opj_cio_close(opj_cio_t *cio) {
 /*
  * Get position in byte stream.
  */
-int OPJ_CALLCONV cio_tell(opj_cio_t *cio) {
+size_t OPJ_CALLCONV cio_tell(opj_cio_t *cio) {
 	return cio->bp - cio->start;
 }
 
@@ -105,14 +105,14 @@ int OPJ_CALLCONV cio_tell(opj_cio_t *cio) {
  *
  * pos : position, in number of bytes, from the beginning of the stream
  */
-void OPJ_CALLCONV cio_seek(opj_cio_t *cio, int pos) {
+void OPJ_CALLCONV cio_seek(opj_cio_t *cio, size_t pos) {
 	cio->bp = cio->start + pos;
 }
 
 /*
  * Number of bytes left before the end of the stream.
  */
-int cio_numbytesleft(opj_cio_t *cio) {
+size_t cio_numbytesleft(opj_cio_t *cio) {
 	return cio->end - cio->bp;
 }
 
@@ -183,7 +183,7 @@ unsigned int cio_read(opj_cio_t *cio, int n) {
  *
  * n : number of bytes to skip
  */
-void cio_skip(opj_cio_t *cio, int n) {
+void cio_skip(opj_cio_t *cio, size_t n) {
 	cio->bp += n;
 }
 

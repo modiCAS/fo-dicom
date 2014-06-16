@@ -114,7 +114,7 @@ Read the value concerning the specified component in the marker QCD and QCC
 @param compno Number of the component concern by the information read
 @param len Length of the information in the QCX part of the marker QCD/QCC
 */
-static void j2k_read_qcx(opj_j2k_t *j2k, int compno, int len);
+static void j2k_read_qcx(opj_j2k_t *j2k, size_t compno, size_t len);
 /**
 Write the QCD marker (quantization default)
 @param j2k J2K handle
@@ -236,7 +236,7 @@ Add main header marker information
 @param pos byte offset of marker segment
 @param len length of marker segment
  */
-static void j2k_add_mhmarker(opj_codestream_info_t *cstr_info, unsigned short int type, int pos, int len);
+static void j2k_add_mhmarker(opj_codestream_info_t *cstr_info, unsigned short int type, size_t pos, size_t len);
 /**
 Add tile header marker information
 @param tileno tile index number
@@ -245,7 +245,7 @@ Add tile header marker information
 @param pos byte offset of marker segment
 @param len length of marker segment
  */
-static void j2k_add_tlmarker( int tileno, opj_codestream_info_t *cstr_info, unsigned short int type, int pos, int len);
+static void j2k_add_tlmarker( int tileno, opj_codestream_info_t *cstr_info, unsigned short int type, size_t pos, size_t len);
 
 /*@}*/
 
@@ -369,7 +369,7 @@ static void j2k_read_soc(opj_j2k_t *j2k) {
 
 static void j2k_write_siz(opj_j2k_t *j2k) {
 	int i;
-	int lenp, len;
+	size_t lenp, len;
 
 	opj_cio_t *cio = j2k->cio;
 	opj_image_t *image = j2k->image;
@@ -592,7 +592,7 @@ static void j2k_read_siz(opj_j2k_t *j2k) {
 		cp->tcps[i].tccps = (opj_tccp_t*) opj_malloc(image->numcomps * sizeof(opj_tccp_t));
 	}	
 	j2k->tile_data = (unsigned char**) opj_calloc(cp->tw * cp->th, sizeof(unsigned char*));
-	j2k->tile_len = (int*) opj_calloc(cp->tw * cp->th, sizeof(int));
+	j2k->tile_len = (size_t*) opj_calloc(cp->tw * cp->th, sizeof(size_t));
 	j2k->state = J2K_STATE_MH;
 
 	/* Index */
@@ -613,7 +613,7 @@ static void j2k_read_siz(opj_j2k_t *j2k) {
 
 static void j2k_write_com(opj_j2k_t *j2k) {
 	unsigned int i;
-	int lenp, len;
+	size_t lenp, len;
 
 	if(j2k->cp->comment) {
 		opj_cio_t *cio = j2k->cio;
@@ -716,7 +716,7 @@ static void j2k_read_cox(opj_j2k_t *j2k, int compno) {
 static void j2k_write_cod(opj_j2k_t *j2k) {
 	opj_cp_t *cp = NULL;
 	opj_tcp_t *tcp = NULL;
-	int lenp, len;
+	size_t lenp, len;
 
 	opj_cio_t *cio = j2k->cio;
 	
@@ -745,7 +745,8 @@ static void j2k_write_cod(opj_j2k_t *j2k) {
 }
 
 static void j2k_read_cod(opj_j2k_t *j2k) {
-	int len, i, pos;
+	size_t len, pos;
+	int i;
 	
 	opj_cio_t *cio = j2k->cio;
 	opj_cp_t *cp = j2k->cp;
@@ -778,7 +779,7 @@ static void j2k_read_cod(opj_j2k_t *j2k) {
 }
 
 static void j2k_write_coc(opj_j2k_t *j2k, int compno) {
-	int lenp, len;
+	size_t lenp, len;
 
 	opj_cp_t *cp = j2k->cp;
 	opj_tcp_t *tcp = &cp->tcps[j2k->curtileno];
@@ -835,9 +836,10 @@ static void j2k_write_qcx(opj_j2k_t *j2k, int compno) {
 	}
 }
 
-static void j2k_read_qcx(opj_j2k_t *j2k, int compno, int len) {
+static void j2k_read_qcx(opj_j2k_t *j2k, size_t compno, size_t len) {
 	int tmp;
-	int bandno, numbands;
+	size_t bandno;
+	size_t numbands;
 
 	opj_cp_t *cp = j2k->cp;
 	opj_tcp_t *tcp = j2k->state == J2K_STATE_TPH ? &cp->tcps[j2k->curtileno] : j2k->default_tcp;
@@ -900,9 +902,9 @@ static void j2k_read_qcx(opj_j2k_t *j2k, int compno, int len) {
 	/* Add Antonin : if scalar_derived -> compute other stepsizes */
 	if (tccp->qntsty == J2K_CCP_QNTSTY_SIQNT) {
 		for (bandno = 1; bandno < J2K_MAXBANDS; bandno++) {
-			tccp->stepsizes[bandno].expn = 
+			tccp->stepsizes[bandno].expn = (int)(
 				((tccp->stepsizes[0].expn) - ((bandno - 1) / 3) > 0) ? 
-					(tccp->stepsizes[0].expn) - ((bandno - 1) / 3) : 0;
+					(tccp->stepsizes[0].expn) - ((bandno - 1) / 3) : 0);
 			tccp->stepsizes[bandno].mant = tccp->stepsizes[0].mant;
 		}
 	}
@@ -910,7 +912,7 @@ static void j2k_read_qcx(opj_j2k_t *j2k, int compno, int len) {
 }
 
 static void j2k_write_qcd(opj_j2k_t *j2k) {
-	int lenp, len;
+	size_t lenp, len;
 
 	opj_cio_t *cio = j2k->cio;
 	
@@ -928,7 +930,8 @@ static void j2k_write_qcd(opj_j2k_t *j2k) {
 }
 
 static void j2k_read_qcd(opj_j2k_t *j2k) {
-	int len, i, pos;
+	size_t len, pos;
+	int i;
 
 	opj_cio_t *cio = j2k->cio;
 	opj_image_t *image = j2k->image;
@@ -942,7 +945,7 @@ static void j2k_read_qcd(opj_j2k_t *j2k) {
 }
 
 static void j2k_write_qcc(opj_j2k_t *j2k, int compno) {
-	int lenp, len;
+	size_t lenp, len;
 
 	opj_cio_t *cio = j2k->cio;
 	
@@ -958,7 +961,7 @@ static void j2k_write_qcc(opj_j2k_t *j2k, int compno) {
 }
 
 static void j2k_read_qcc(opj_j2k_t *j2k) {
-	int len, compno;
+	size_t len, compno;
 	int numcomp = j2k->image->numcomps;
 	opj_cio_t *cio = j2k->cio;
 
@@ -1223,7 +1226,7 @@ static void j2k_write_tlm(opj_j2k_t *j2k){
 }
 
 static void j2k_write_sot(opj_j2k_t *j2k) {
-	int lenp, len;
+	size_t lenp, len;
 
 	opj_cio_t *cio = j2k->cio;
 
@@ -1253,7 +1256,8 @@ static void j2k_write_sot(opj_j2k_t *j2k) {
 }
 
 static void j2k_read_sot(opj_j2k_t *j2k) {
-	int len, tileno, totlen, partno, numparts, i;
+	int len, tileno, partno, numparts, i;
+	size_t totlen;
 	opj_tcp_t *tcp = NULL;
 	char status = 0;
 
@@ -1383,8 +1387,9 @@ static void j2k_read_sot(opj_j2k_t *j2k) {
 }
 
 static void j2k_write_sod(opj_j2k_t *j2k, void *tile_coder) {
-	int l, layno;
-	int totlen;
+	size_t l;
+	int layno;
+	size_t totlen;
 	opj_tcp_t *tcp = NULL;
 	opj_codestream_info_t *cstr_info = NULL;
 	
@@ -1456,7 +1461,8 @@ static void j2k_write_sod(opj_j2k_t *j2k, void *tile_coder) {
 }
 
 static void j2k_read_sod(opj_j2k_t *j2k) {
-	int len, truncate = 0, i;
+	size_t len, i;
+	int truncate = 0;
 	unsigned char *data = NULL, *data_ptr = NULL;
 
 	opj_cio_t *cio = j2k->cio;
@@ -1471,7 +1477,7 @@ static void j2k_read_sod(opj_j2k_t *j2k) {
 		j2k->cstr_info->packno = 0;
 	}
 	
-	len = int_min(j2k->eot - cio_getbp(cio), cio_numbytesleft(cio) + 1);
+	len = size_t_min(j2k->eot - cio_getbp(cio), cio_numbytesleft(cio) + 1);
 
 	if (len == cio_numbytesleft(cio) + 1) {
 		truncate = 1;		/* Case of a truncate codestream */
@@ -1903,7 +1909,7 @@ opj_image_t* j2k_decode(opj_j2k_t *j2k, opj_cio_t *cio, opj_codestream_info_t *c
 opj_image_t* j2k_decode_jpt_stream(opj_j2k_t *j2k, opj_cio_t *cio,  opj_codestream_info_t *cstr_info) {
 	opj_image_t *image = NULL;
 	opj_jpt_msg_header_t header;
-	int position;
+	size_t position;
 	opj_common_ptr cinfo = j2k->cinfo;
 
 	OPJ_ARG_NOT_USED(cstr_info);
@@ -1937,7 +1943,7 @@ opj_image_t* j2k_decode_jpt_stream(opj_j2k_t *j2k, opj_cio_t *cio,  opj_codestre
 			return image;
 		}
 		/* data-bin read -> need to read a new header */
-		if ((unsigned int) (cio_tell(cio) - position) == header.Msg_length) {
+		if (cio_tell(cio) - position == header.Msg_length) {
 			jpt_read_msg_header(cinfo, cio, &header);
 			position = cio_tell(cio);
 			if (header.Class_Id != 4) {	/* 4 : Tile data-bin message */
@@ -2060,9 +2066,10 @@ void j2k_setup_encoder(opj_j2k_t *j2k, opj_cparameters_t *parameters, opj_image_
 
 	/* comment string */
 	if(parameters->cp_comment) {
-		cp->comment = (char*)opj_malloc(strlen(parameters->cp_comment) + 1);
+		size_t len = strlen(parameters->cp_comment);
+		cp->comment = (char*)opj_malloc(len + 1);
 		if(cp->comment) {
-			strcpy(cp->comment, parameters->cp_comment);
+			strcpy_s(cp->comment, len, parameters->cp_comment);
 		}
 	}
 
@@ -2492,7 +2499,7 @@ opj_bool j2k_encode(opj_j2k_t *j2k, opj_cio_t *cio, opj_image_t *image, opj_code
 	return OPJ_TRUE;
 }
 
-static void j2k_add_mhmarker(opj_codestream_info_t *cstr_info, unsigned short int type, int pos, int len) {
+static void j2k_add_mhmarker(opj_codestream_info_t *cstr_info, unsigned short int type, size_t pos, size_t len) {
 
 	if (!cstr_info)
 		return;
@@ -2511,7 +2518,7 @@ static void j2k_add_mhmarker(opj_codestream_info_t *cstr_info, unsigned short in
 
 }
 
-static void j2k_add_tlmarker( int tileno, opj_codestream_info_t *cstr_info, unsigned short int type, int pos, int len) {
+static void j2k_add_tlmarker( int tileno, opj_codestream_info_t *cstr_info, unsigned short int type, size_t pos, size_t len) {
 
   opj_marker_info_t *marker;
 

@@ -65,7 +65,7 @@
  * @param[in] cio       file output handle
  * @return              length of tpix box
  */
-int write_tpix( int coff, opj_codestream_info_t cstr_info, int j2klen, opj_cio_t *cio);
+size_t write_tpix( size_t coff, opj_codestream_info_t cstr_info, size_t j2klen, opj_cio_t *cio);
 
 
 /* 
@@ -76,7 +76,7 @@ int write_tpix( int coff, opj_codestream_info_t cstr_info, int j2klen, opj_cio_t
  * @param[in] cio       file output handle
  * @return              length of thix box
  */
-int write_thix( int coff, opj_codestream_info_t cstr_info, opj_cio_t *cio);
+size_t write_thix( size_t coff, opj_codestream_info_t cstr_info, opj_cio_t *cio);
 
 
 /* 
@@ -89,7 +89,7 @@ int write_thix( int coff, opj_codestream_info_t cstr_info, opj_cio_t *cio);
  * @param[in] cio       file output handle
  * @return              length of ppix box
  */
-int write_ppix( int coff, opj_codestream_info_t cstr_info, opj_bool EPHused, int j2klen, opj_cio_t *cio);
+size_t write_ppix( size_t coff, opj_codestream_info_t cstr_info, opj_bool EPHused, size_t j2klen, opj_cio_t *cio);
 
 
 /* 
@@ -102,7 +102,7 @@ int write_ppix( int coff, opj_codestream_info_t cstr_info, opj_bool EPHused, int
  * @param[in] cio       file output handle
  * @return              length of ppix box
  */
-int write_phix( int coff, opj_codestream_info_t cstr_info, opj_bool EPHused, int j2klen, opj_cio_t *cio);
+size_t write_phix( size_t coff, opj_codestream_info_t cstr_info, opj_bool EPHused, size_t j2klen, opj_cio_t *cio);
 
 /* 
  * Wriet manifest box (box)

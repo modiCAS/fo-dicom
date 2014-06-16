@@ -41,7 +41,7 @@
  * @param[in] clen length of j2k codestream
  * @param[in] cio  file output handle
  */
-void write_cptr(int coff, int clen, opj_cio_t *cio);
+void write_cptr(size_t coff, size_t clen, opj_cio_t *cio);
 
 
 /* 
@@ -52,7 +52,7 @@ void write_cptr(int coff, int clen, opj_cio_t *cio);
  * @param[in] cio  file output handle
  * @return         length of mainmhix box
  */
-int write_mainmhix( int coff, opj_codestream_info_t cstr_info, opj_cio_t *cio);
+size_t write_mainmhix( size_t coff, opj_codestream_info_t cstr_info, opj_cio_t *cio);
 
 
 /* 
@@ -64,12 +64,14 @@ int write_mainmhix( int coff, opj_codestream_info_t cstr_info, opj_cio_t *cio);
  * @param[in] cio     file output handle
  * @return            true if EPH is used
  */
-opj_bool check_EPHuse( int coff, opj_marker_info_t *markers, int marknum, opj_cio_t *cio);
+opj_bool check_EPHuse( size_t coff, opj_marker_info_t *markers, int marknum, opj_cio_t *cio);
 
 
-int write_cidx( int offset, opj_cio_t *cio, opj_image_t *image, opj_codestream_info_t cstr_info, int j2klen)
+size_t write_cidx( size_t offset, opj_cio_t *cio, opj_image_t *image, opj_codestream_info_t cstr_info, size_t j2klen)
 {
-  int len, i, lenp;
+  int i;
+  size_t len;
+  size_t lenp;
   opj_jp2_box_t *box;
   int num_box = 0;
   opj_bool  EPHused;
@@ -125,9 +127,9 @@ int write_cidx( int offset, opj_cio_t *cio, opj_image_t *image, opj_codestream_i
   return len;
 }
 
-void write_cptr(int coff, int clen, opj_cio_t *cio)
+void write_cptr(size_t coff, size_t clen, opj_cio_t *cio)
 {
-  int len, lenp;
+  size_t len, lenp;
 
   lenp = cio_tell( cio);
   cio_skip( cio, 4);               /* L [at the end]     */
@@ -144,7 +146,8 @@ void write_cptr(int coff, int clen, opj_cio_t *cio)
 
 void write_manf(int second, int v, opj_jp2_box_t *box, opj_cio_t *cio)
 {
-  int len, lenp, i;
+  int i;
+  size_t len, lenp;
   
   lenp = cio_tell( cio); 
   cio_skip( cio, 4);                         /* L [at the end]                    */
@@ -163,10 +166,10 @@ void write_manf(int second, int v, opj_jp2_box_t *box, opj_cio_t *cio)
   cio_seek( cio, lenp+len);
 }
 
-int write_mainmhix( int coff, opj_codestream_info_t cstr_info, opj_cio_t *cio)
+size_t write_mainmhix( size_t coff, opj_codestream_info_t cstr_info, opj_cio_t *cio)
 {
   int i;
-  int len, lenp;
+  size_t len, lenp;
   
   lenp = cio_tell( cio);
   cio_skip( cio, 4);                               /* L [at the end]                    */
@@ -189,11 +192,11 @@ int write_mainmhix( int coff, opj_codestream_info_t cstr_info, opj_cio_t *cio)
   return len;
 }
 
-opj_bool check_EPHuse( int coff, opj_marker_info_t *markers, int marknum, opj_cio_t *cio)
+opj_bool check_EPHuse( size_t coff, opj_marker_info_t *markers, int marknum, opj_cio_t *cio)
 {
   opj_bool EPHused = OPJ_FALSE;
   int i=0;
-  int org_pos;
+  size_t org_pos;
   unsigned int Scod;
 
   for(i = 0; i < marknum; i++){

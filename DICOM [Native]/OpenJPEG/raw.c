@@ -53,7 +53,7 @@ void raw_destroy(opj_raw_t *raw) {
 	}
 }
 
-int raw_numbytes(opj_raw_t *raw) {
+size_t raw_numbytes(opj_raw_t *raw) {
 	return raw->bp - raw->start;
 }
 

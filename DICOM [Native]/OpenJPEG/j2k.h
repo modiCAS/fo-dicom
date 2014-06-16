@@ -191,7 +191,7 @@ typedef struct opj_tcp {
 	/** used in case of multiple marker PPT (number of info already stored) */
 	int ppt_store;
 	/** ppmbug1 */
-	int ppt_len;
+	size_t ppt_len;
 	/** add fixed_quality */
 	float distoratio[100];
 	/** tile-component coding parameters */
@@ -205,7 +205,7 @@ typedef struct opj_cp {
 	/** Digital cinema profile*/
 	OPJ_CINEMA_MODE cinema;
 	/** Maximum rate for each component. If == 0, component size limitation is not considered */
-	int max_comp_size;
+	size_t max_comp_size;
 	/** Size of the image in bits*/
 	int img_size;
 	/** Rsiz*/
@@ -257,7 +257,7 @@ typedef struct opj_cp {
 	/** use in case of multiple marker PPM (case on non-finished previous info) */
 	int ppm_previous;
 	/** ppmbug1 */
-	int ppm_len;
+	size_t ppm_len;
 	/** tile coding parameters */
 	opj_tcp_t *tcps;
 	/** fixed layer */
@@ -329,7 +329,7 @@ typedef struct opj_j2k {
 	locate the start position of the TLM marker  
 	after encoding the tilepart, a jump (in j2k_write_sod) is done to the TLM marker to store the value of its length. 
 	*/
-	int tlm_start;
+	size_t tlm_start;
 	/** Total num of tile parts in whole image = num tiles* num tileparts in each tile*/
 	/** used in TLMmarker*/
 	int totnum_tp;	
@@ -342,8 +342,8 @@ typedef struct opj_j2k {
 	locate the start position of the SOT marker of the current coded tile:  
 	after encoding the tile, a jump (in j2k_write_sod) is done to the SOT marker to store the value of its length. 
 	*/
-	int sot_start;
-	int sod_start;
+	size_t sot_start;
+	size_t sod_start;
 	/**
 	as the J2K-file is written in several parts during encoding, 
 	it enables to make the right correction in position return by cio_tell
@@ -352,7 +352,7 @@ typedef struct opj_j2k {
 	/** array used to store the data of each tile */
 	unsigned char **tile_data;
 	/** array used to store the length of each tile */
-	int *tile_len;
+	size_t *tile_len;
 	/** 
 	decompression only : 
 	store decoding parameters common to all tiles (information like COD, COC in main header)

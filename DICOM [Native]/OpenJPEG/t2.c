@@ -37,7 +37,7 @@
 /** @name Local static functions */
 /*@{*/
 
-static void t2_putcommacode(opj_bio_t *bio, int n);
+static void t2_putcommacode(opj_bio_t *bio, size_t n);
 static int t2_getcommacode(opj_bio_t *bio);
 /**
 Variable length code for signalling delta Zil (truncation point)
@@ -57,7 +57,7 @@ Encode a packet of a tile to a destination buffer
 @param tileno Number of the tile encoded
 @return 
 */
-static int t2_encode_packet(opj_tcd_tile_t *tile, opj_tcp_t *tcp, opj_pi_iterator_t *pi, unsigned char *dest, int len, opj_codestream_info_t *cstr_info, int tileno);
+static size_t t2_encode_packet(opj_tcd_tile_t *tile, opj_tcp_t *tcp, opj_pi_iterator_t *pi, unsigned char *dest, size_t len, opj_codestream_info_t *cstr_info, int tileno);
 /**
 @param cblk
 @param index
@@ -76,7 +76,7 @@ Decode a packet of a tile from a source buffer
 @param pack_info Packet information
 @return 
 */
-static int t2_decode_packet(opj_t2_t* t2, unsigned char *src, int len, opj_tcd_tile_t *tile, 
+static size_t t2_decode_packet(opj_t2_t* t2, unsigned char *src, size_t len, opj_tcd_tile_t *tile, 
 														opj_tcp_t *tcp, opj_pi_iterator_t *pi, opj_packet_info_t *pack_info);
 
 /*@}*/
@@ -87,9 +87,10 @@ static int t2_decode_packet(opj_t2_t* t2, unsigned char *src, int len, opj_tcd_t
 
 /* #define RESTART 0x04 */
 
-static void t2_putcommacode(opj_bio_t *bio, int n) {
-	while (--n >= 0) {
+static void t2_putcommacode(opj_bio_t *bio, size_t n) {
+	while (n > 0) {
 		bio_write(bio, 1, 1);
+		n--;
 	}
 	bio_write(bio, 0, 1);
 }
@@ -129,7 +130,7 @@ static int t2_getnumpasses(opj_bio_t *bio) {
 	return (37 + bio_read(bio, 7));
 }
 
-static int t2_encode_packet(opj_tcd_tile_t * tile, opj_tcp_t * tcp, opj_pi_iterator_t *pi, unsigned char *dest, int length, opj_codestream_info_t *cstr_info, int tileno) {
+static size_t t2_encode_packet(opj_tcd_tile_t * tile, opj_tcp_t * tcp, opj_pi_iterator_t *pi, unsigned char *dest, size_t length, opj_codestream_info_t *cstr_info, int tileno) {
 	int bandno, cblkno;
 	unsigned char *c = dest;
 
@@ -187,9 +188,10 @@ static int t2_encode_packet(opj_tcd_tile_t * tile, opj_tcp_t * tcp, opj_pi_itera
 		for (cblkno = 0; cblkno < prc->cw * prc->ch; cblkno++) {
 			opj_tcd_cblk_enc_t* cblk = &prc->cblks.enc[cblkno];
 			opj_tcd_layer_t *layer = &cblk->layers[layno];
-			int increment = 0;
+			size_t increment = 0;
 			int nump = 0;
-			int len = 0, passno;
+			size_t len = 0;
+			int passno;
 			/* cblk inclusion bits */
 			if (!cblk->numpasses) {
 				tgt_encode(bio, prc->incltree, cblkno, layno + 1);
@@ -214,7 +216,7 @@ static int t2_encode_packet(opj_tcd_tile_t * tile, opj_tcp_t * tcp, opj_pi_itera
 				nump++;
 				len += pass->len;
 				if (pass->term || passno == (cblk->numpasses + layer->numpasses) - 1) {
-					increment = int_max(increment, int_floorlog2(len) + 1 - (cblk->numlenbits + int_floorlog2(nump)));
+					increment = size_t_max(increment, size_t_floorlog2(len) + 1 - (cblk->numlenbits + size_t_floorlog2(nump)));
 					len = 0;
 					nump = 0;
 				}
@@ -318,7 +320,7 @@ static void t2_init_seg(opj_tcd_cblk_dec_t* cblk, int index, int cblksty, int fi
 	}
 }
 
-static int t2_decode_packet(opj_t2_t* t2, unsigned char *src, int len, opj_tcd_tile_t *tile, 
+static size_t t2_decode_packet(opj_t2_t* t2, unsigned char *src, size_t len, opj_tcd_tile_t *tile, 
 														opj_tcp_t *tcp, opj_pi_iterator_t *pi, opj_packet_info_t *pack_info) {
 	int bandno, cblkno;
 	unsigned char *c = src;
@@ -592,9 +594,9 @@ static int t2_decode_packet(opj_t2_t* t2, unsigned char *src, int len, opj_tcd_t
 
 /* ----------------------------------------------------------------------- */
 
-int t2_encode_packets(opj_t2_t* t2,int tileno, opj_tcd_tile_t *tile, int maxlayers, unsigned char *dest, int len, opj_codestream_info_t *cstr_info,int tpnum, int tppos,int pino, J2K_T2_MODE t2_mode, int cur_totnum_tp){
+size_t t2_encode_packets(opj_t2_t* t2,int tileno, opj_tcd_tile_t *tile, int maxlayers, unsigned char *dest, size_t len, opj_codestream_info_t *cstr_info,int tpnum, int tppos,int pino, J2K_T2_MODE t2_mode, int cur_totnum_tp){
 	unsigned char *c = dest;
-	int e = 0;
+	size_t e = 0;
 	int compno;
 	opj_pi_iterator_t *pi = NULL;
 	int poc;
@@ -613,7 +615,7 @@ int t2_encode_packets(opj_t2_t* t2,int tileno, opj_tcd_tile_t *tile, int maxlaye
 	if(t2_mode == THRESH_CALC ){ /* Calculating threshold */
 		for(compno = 0; compno < maxcomp; compno++ ){
 			for(poc = 0; poc < pocno ; poc++){
-				int comp_len = 0;
+				size_t comp_len = 0;
 				int tpnum = compno;
 				if (pi_create_encode(pi, cp,tileno,poc,tpnum,tppos,t2_mode,cur_totnum_tp)) {
 					opj_event_msg(t2->cinfo, EVT_ERROR, "Error initializing Packet Iterator\n");
@@ -683,10 +685,11 @@ int t2_encode_packets(opj_t2_t* t2,int tileno, opj_tcd_tile_t *tile, int maxlaye
   return (c - dest);
 }
 
-int t2_decode_packets(opj_t2_t *t2, unsigned char *src, int len, int tileno, opj_tcd_tile_t *tile, opj_codestream_info_t *cstr_info) {
+size_t t2_decode_packets(opj_t2_t *t2, unsigned char *src, size_t len, int tileno, opj_tcd_tile_t *tile, opj_codestream_info_t *cstr_info) {
 	unsigned char *c = src;
 	opj_pi_iterator_t *pi;
-	int pino, e = 0;
+	int pino;
+	size_t e = 0;
 	int n = 0, curtp = 0;
 	int tp_start_packno;
 

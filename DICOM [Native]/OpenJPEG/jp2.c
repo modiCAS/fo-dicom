@@ -70,8 +70,8 @@ Read the FTYP box - File type box
 @return Returns true if successful, returns false otherwise
 */
 static opj_bool jp2_read_ftyp(opj_jp2_t *jp2, opj_cio_t *cio);
-static int jp2_write_jp2c(opj_jp2_t *jp2, opj_cio_t *cio, opj_image_t *image, opj_codestream_info_t *cstr_info);
-static opj_bool jp2_read_jp2c(opj_jp2_t *jp2, opj_cio_t *cio, unsigned int *j2k_codestream_length, unsigned int *j2k_codestream_offset);
+static size_t jp2_write_jp2c(opj_jp2_t *jp2, opj_cio_t *cio, opj_image_t *image, opj_codestream_info_t *cstr_info);
+static opj_bool jp2_read_jp2c(opj_jp2_t *jp2, opj_cio_t *cio, size_t *j2k_codestream_length, size_t *j2k_codestream_offset);
 static void jp2_write_jp(opj_cio_t *cio);
 /**
 Read the JP box - JPEG 2000 signature
@@ -134,14 +134,14 @@ Write file Index (superbox)
 @param[in] cio         file output handle
 @return                length of fidx box
 */
-static int write_fidx( int offset_jp2c, int length_jp2c, int offset_idx, int length_idx, opj_cio_t *cio);
+static size_t write_fidx( size_t offset_jp2c, int length_jp2c, size_t offset_idx, int length_idx, opj_cio_t *cio);
 /**
 Write index Finder box
 @param[in] offset offset of fidx box
 @param[in] length length of fidx box
 @param[in] cio         file output handle
 */
-static void write_iptr( int offset, int length, opj_cio_t *cio);
+static void write_iptr( size_t offset, size_t length, opj_cio_t *cio);
 /**
 Write proxy box
 @param[in] offset_jp2c offset of jp2c box
@@ -150,7 +150,7 @@ Write proxy box
 @param[in] length_idx  length of cidx box
 @param[in] cio         file output handle
 */
-static void write_prxy( int offset_jp2c, int length_jp2c, int offset_idx, int length_idx, opj_cio_t *cio);
+static void write_prxy( size_t offset_jp2c, int length_jp2c, size_t offset_idx, int length_idx, opj_cio_t *cio);
 /*@}*/
 
 /*@}*/
@@ -580,7 +580,7 @@ static opj_bool jp2_read_cdef(opj_jp2_t *jp2, opj_cio_t *cio,
 static opj_bool jp2_read_colr(opj_jp2_t *jp2, opj_cio_t *cio,
 	opj_jp2_box_t *box, opj_jp2_color_t *color) 
 {
-	int skip_len;
+	size_t skip_len;
     opj_common_ptr cinfo;
 
 /* Part 1, I.5.3.3 : 'A conforming JP2 reader shall ignore all Colour
@@ -635,7 +635,7 @@ static opj_bool jp2_read_colr(opj_jp2_t *jp2, opj_cio_t *cio,
 opj_bool jp2_read_jp2h(opj_jp2_t *jp2, opj_cio_t *cio, opj_jp2_color_t *color) 
 {
 	opj_jp2_box_t box;
-	int jp2h_end;
+	size_t jp2h_end;
 
 	opj_common_ptr cinfo = jp2->cinfo;
 
@@ -863,8 +863,8 @@ static opj_bool jp2_read_ftyp(opj_jp2_t *jp2, opj_cio_t *cio) {
 	return OPJ_TRUE;
 }
 
-static int jp2_write_jp2c(opj_jp2_t *jp2, opj_cio_t *cio, opj_image_t *image, opj_codestream_info_t *cstr_info) {
-	unsigned int j2k_codestream_offset, j2k_codestream_length;
+static size_t jp2_write_jp2c(opj_jp2_t *jp2, opj_cio_t *cio, opj_image_t *image, opj_codestream_info_t *cstr_info) {
+	size_t j2k_codestream_offset, j2k_codestream_length;
 	opj_jp2_box_t box;
 
 	opj_j2k_t *j2k = jp2->j2k;
@@ -892,7 +892,7 @@ static int jp2_write_jp2c(opj_jp2_t *jp2, opj_cio_t *cio, opj_image_t *image, op
 	return box.length;
 }
 
-static opj_bool jp2_read_jp2c(opj_jp2_t *jp2, opj_cio_t *cio, unsigned int *j2k_codestream_length, unsigned int *j2k_codestream_offset) {
+static opj_bool jp2_read_jp2c(opj_jp2_t *jp2, opj_cio_t *cio, size_t *j2k_codestream_length, size_t *j2k_codestream_offset) {
 	opj_jp2_box_t box;
 
 	opj_common_ptr cinfo = jp2->cinfo;
@@ -963,9 +963,9 @@ static opj_bool jp2_read_struct(opj_jp2_t *jp2, opj_cio_t *cio,
 }
 
 
-static int write_fidx( int offset_jp2c, int length_jp2c, int offset_idx, int length_idx, opj_cio_t *cio)
+static size_t write_fidx( size_t offset_jp2c, int length_jp2c, size_t offset_idx, int length_idx, opj_cio_t *cio)
 {  
-  int len, lenp;
+  size_t len, lenp;
   
   lenp = cio_tell( cio);
   cio_skip( cio, 4);              /* L [at the end] */
@@ -981,9 +981,9 @@ static int write_fidx( int offset_jp2c, int length_jp2c, int offset_idx, int len
   return len;
 }
 
-static void write_prxy( int offset_jp2c, int length_jp2c, int offset_idx, int length_idx, opj_cio_t *cio)
+static void write_prxy( size_t offset_jp2c, int length_jp2c, size_t offset_idx, int length_idx, opj_cio_t *cio)
 {
-  int len, lenp;
+  size_t len, lenp;
 
   lenp = cio_tell( cio);
   cio_skip( cio, 4);              /* L [at the end] */
@@ -1005,9 +1005,9 @@ static void write_prxy( int offset_jp2c, int length_jp2c, int offset_idx, int le
   cio_seek( cio, lenp+len);
 }
 
-static void write_iptr( int offset, int length, opj_cio_t *cio)
+static void write_iptr( size_t offset, size_t length, opj_cio_t *cio)
 {
-  int len, lenp;
+  size_t len, lenp;
   
   lenp = cio_tell( cio);
   cio_skip( cio, 4);              /* L [at the end] */
@@ -1165,7 +1165,7 @@ void jp2_setup_encoder(opj_jp2_t *jp2, opj_cparameters_t *parameters, opj_image_
 
 opj_bool opj_jp2_encode(opj_jp2_t *jp2, opj_cio_t *cio, opj_image_t *image, opj_codestream_info_t *cstr_info) {
 
-	int pos_iptr, pos_cidx, pos_jp2c, len_jp2c, len_cidx, end_pos, pos_fidx, len_fidx;
+	size_t pos_iptr, pos_cidx, pos_jp2c, len_jp2c, len_cidx, end_pos, pos_fidx, len_fidx;
 	pos_jp2c = pos_iptr = -1; /* remove a warning */
 
 	/* JP2 encoding */
@@ -1196,7 +1196,7 @@ opj_bool opj_jp2_encode(opj_jp2_t *jp2, opj_cio_t *cio, opj_image_t *image, opj_
 	  len_cidx = write_cidx( pos_jp2c+8, cio, image, *cstr_info, len_jp2c-8);
 	  
 	  pos_fidx = cio_tell( cio);
-	  len_fidx = write_fidx( pos_jp2c, len_jp2c, pos_cidx, len_cidx, cio);
+	  len_fidx = write_fidx( pos_jp2c, (int)len_jp2c, pos_cidx, (int)len_cidx, cio);
 	  
 	  end_pos = cio_tell( cio);
 	  

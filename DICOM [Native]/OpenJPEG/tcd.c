@@ -955,7 +955,7 @@ void tcd_makelayer(opj_tcd_t *tcd, int layno, double thresh, int final) {
 						}
 						n = cblk->numpassesinlayers;
 						for (passno = cblk->numpassesinlayers; passno < cblk->totalpasses; passno++) {
-							int dr;
+							size_t dr;
 							double dd;
 							opj_tcd_pass_t *pass = &cblk->passes[passno];
 							if (n == 0) {
@@ -1000,7 +1000,7 @@ void tcd_makelayer(opj_tcd_t *tcd, int layno, double thresh, int final) {
 	}
 }
 
-opj_bool tcd_rateallocate(opj_tcd_t *tcd, unsigned char *dest, int len, opj_codestream_info_t *cstr_info) {
+opj_bool tcd_rateallocate(opj_tcd_t *tcd, unsigned char *dest, size_t len, opj_codestream_info_t *cstr_info) {
 	int compno, resno, bandno, precno, cblkno, passno, layno;
 	double min, max;
 	double cumdisto[100];	/* fixed_quality */
@@ -1034,7 +1034,7 @@ opj_bool tcd_rateallocate(opj_tcd_t *tcd, unsigned char *dest, int len, opj_code
 
 						for (passno = 0; passno < cblk->totalpasses; passno++) {
 							opj_tcd_pass_t *pass = &cblk->passes[passno];
-							int dr;
+							size_t dr;
 							double dd, rdslope;
 							if (passno == 0) {
 								dr = pass->rate;
@@ -1080,7 +1080,7 @@ opj_bool tcd_rateallocate(opj_tcd_t *tcd, unsigned char *dest, int len, opj_code
 		double lo = min;
 		double hi = max;
 		int success = 0;
-		int maxlen = tcd_tcp->rates[layno] ? int_min(((int) ceil(tcd_tcp->rates[layno])), len) : len;
+		size_t maxlen = tcd_tcp->rates[layno] ? size_t_min((size_t)ceil(tcd_tcp->rates[layno]), len) : len;
 		double goodthresh = 0;
 		double stable_thresh = 0;
 		int i;
@@ -1098,7 +1098,7 @@ opj_bool tcd_rateallocate(opj_tcd_t *tcd, unsigned char *dest, int len, opj_code
 			double thresh = 0;
 
 			for (i = 0; i < 128; i++) {
-				int l = 0;
+				size_t l = 0;
 				double distoachieved = 0;	/* fixed_quality */
 				thresh = (lo + hi) / 2;
 				
@@ -1167,9 +1167,10 @@ opj_bool tcd_rateallocate(opj_tcd_t *tcd, unsigned char *dest, int len, opj_code
 	return OPJ_TRUE;
 }
 
-int tcd_encode_tile(opj_tcd_t *tcd, int tileno, unsigned char *dest, int len, opj_codestream_info_t *cstr_info) {
+size_t tcd_encode_tile(opj_tcd_t *tcd, int tileno, unsigned char *dest, size_t len, opj_codestream_info_t *cstr_info) {
 	int compno;
-	int l, i, numpacks = 0;
+	int i, numpacks = 0;
+	size_t l;
 	opj_tcd_tile_t *tile = NULL;
 	opj_tcp_t *tcd_tcp = NULL;
 	opj_cp_t *cp = NULL;
@@ -1316,8 +1317,8 @@ int tcd_encode_tile(opj_tcd_t *tcd, int tileno, unsigned char *dest, int len, op
 	return l;
 }
 
-opj_bool tcd_decode_tile(opj_tcd_t *tcd, unsigned char *src, int len, int tileno, opj_codestream_info_t *cstr_info) {
-	int l;
+opj_bool tcd_decode_tile(opj_tcd_t *tcd, unsigned char *src, size_t len, int tileno, opj_codestream_info_t *cstr_info) {
+	size_t l;
 	int compno;
 	int eof = 0;
 	double tile_time, t1_time, dwt_time;

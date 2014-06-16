@@ -371,7 +371,7 @@ void mqc_destroy(opj_mqc_t *mqc) {
 	}
 }
 
-int mqc_numbytes(opj_mqc_t *mqc) {
+size_t mqc_numbytes(opj_mqc_t *mqc) {
 	return mqc->bp - mqc->start;
 }
 

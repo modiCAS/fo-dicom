@@ -50,7 +50,7 @@
  * @param[in] j2klen    length of j2k codestream
  * @return              length of cidx box
  */
-int write_cidx( int offset, opj_cio_t *cio, opj_image_t *image, opj_codestream_info_t cstr_info, int j2klen);
+size_t write_cidx( size_t offset, opj_cio_t *cio, opj_image_t *image, opj_codestream_info_t cstr_info, size_t j2klen);
 
 
 #endif      /* !CIDX_MANAGER_H_ */

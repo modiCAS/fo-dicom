@@ -50,11 +50,17 @@ Get the minimum of two integers
 static INLINE int int_min(int a, int b) {
 	return a < b ? a : b;
 }
+static INLINE size_t size_t_min(size_t a, size_t b) {
+	return a < b ? a : b;
+}
 /**
 Get the maximum of two integers
 @return Returns a if a > b else b
 */
 static INLINE int int_max(int a, int b) {
+	return (a > b) ? a : b;
+}
+static INLINE size_t size_t_max(size_t a, size_t b) {
 	return (a > b) ? a : b;
 }
 /**
@@ -106,6 +112,13 @@ Get logarithm of an integer and round downwards
 */
 static INLINE int int_floorlog2(int a) {
 	int l;
+	for (l = 0; a > 1; l++) {
+		a >>= 1;
+	}
+	return l;
+}
+static INLINE size_t size_t_floorlog2(size_t a) {
+	size_t l;
 	for (l = 0; a > 1; l++) {
 		a >>= 1;
 	}

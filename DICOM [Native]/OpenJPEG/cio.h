@@ -49,7 +49,7 @@ Number of bytes left before the end of the stream
 @param cio CIO handle
 @return Returns the number of bytes before the end of the stream
 */
-int cio_numbytesleft(opj_cio_t *cio);
+size_t cio_numbytesleft(opj_cio_t *cio);
 /**
 Get pointer to the current position in the stream
 @param cio CIO handle
@@ -76,7 +76,7 @@ Skip some bytes
 @param cio CIO handle
 @param n Number of bytes to skip
 */
-void cio_skip(opj_cio_t *cio, int n);
+void cio_skip(opj_cio_t *cio, size_t n);
 /* ----------------------------------------------------------------------- */
 /*@}*/
 

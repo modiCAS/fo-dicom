@@ -49,12 +49,12 @@
  * @param[in] cio       file output handle
  * @return              length of faix box
  */
-int write_tpixfaix( int coff, int compno, opj_codestream_info_t cstr_info, int j2klen, opj_cio_t *cio);
+size_t write_tpixfaix( size_t coff, int compno, opj_codestream_info_t cstr_info, size_t j2klen, opj_cio_t *cio);
 
 
-int write_tpix( int coff, opj_codestream_info_t cstr_info, int j2klen, opj_cio_t *cio)
+size_t write_tpix( size_t coff, opj_codestream_info_t cstr_info, size_t j2klen, opj_cio_t *cio)
 {
-  int len, lenp;
+  size_t len, lenp;
   lenp = cio_tell( cio);
   cio_skip( cio, 4);              /* L [at the end] */
   cio_write( cio, JPIP_TPIX, 4);  /* TPIX           */
@@ -78,9 +78,9 @@ int write_tpix( int coff, opj_codestream_info_t cstr_info, int j2klen, opj_cio_t
  */
 int get_num_max_tile_parts( opj_codestream_info_t cstr_info);
 
-int write_tpixfaix( int coff, int compno, opj_codestream_info_t cstr_info, int j2klen, opj_cio_t *cio)
+size_t write_tpixfaix( size_t coff, int compno, opj_codestream_info_t cstr_info, size_t j2klen, opj_cio_t *cio)
 {
-  int len, lenp;
+  size_t len, lenp;
   int i, j;
   int Aux;
   int num_max_tile_parts;

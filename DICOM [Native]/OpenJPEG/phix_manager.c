@@ -48,11 +48,12 @@
  * @param[in] cio       file output handle
  * @return              length of faix box
  */
-int write_phixfaix( int coff, int compno, opj_codestream_info_t cstr_info, opj_bool EPHused, int j2klen, opj_cio_t *cio);
+size_t write_phixfaix( size_t coff, int compno, opj_codestream_info_t cstr_info, opj_bool EPHused, size_t j2klen, opj_cio_t *cio);
 
-int write_phix( int coff, opj_codestream_info_t cstr_info, opj_bool EPHused, int j2klen, opj_cio_t *cio)
+size_t write_phix( size_t coff, opj_codestream_info_t cstr_info, opj_bool EPHused, size_t j2klen, opj_cio_t *cio)
 {
-  int len, lenp=0, compno, i;
+  size_t len, lenp=0;
+  int compno, i;
   opj_jp2_box_t *box;
 
   box = (opj_jp2_box_t *)opj_calloc( cstr_info.numcomps, sizeof(opj_jp2_box_t));
@@ -82,9 +83,10 @@ int write_phix( int coff, opj_codestream_info_t cstr_info, opj_bool EPHused, int
   return len;
 }
 
-int write_phixfaix( int coff, int compno, opj_codestream_info_t cstr_info, opj_bool EPHused, int j2klen, opj_cio_t *cio)
+size_t write_phixfaix( size_t coff, int compno, opj_codestream_info_t cstr_info, opj_bool EPHused, size_t j2klen, opj_cio_t *cio)
 {
-  int len, lenp, tileno, version, i, nmax, size_of_coding; /* 4 or 8 */
+  size_t len, lenp;
+  int tileno, version, i, nmax, size_of_coding; /* 4 or 8 */
   opj_tile_info_t *tile_Idx;
   opj_packet_info_t packet;
   int resno, precno, layno, num_packet;

@@ -58,9 +58,10 @@ typedef struct opj_tcd_seg {
 FIXME: documentation
 */
 typedef struct opj_tcd_pass {
-  int rate;
+  size_t rate;
   double distortiondec;
-  int term, len;
+  int term;
+  size_t len;
 } opj_tcd_pass_t;
 
 /**
@@ -68,7 +69,7 @@ FIXME: documentation
 */
 typedef struct opj_tcd_layer {
   int numpasses;		/* Number of passes in the layer */
-  int len;			/* len of information */
+  size_t len;			/* len of information */
   double disto;			/* add for index (Cfr. Marcela) */
   unsigned char *data;		/* data */
 } opj_tcd_layer_t;
@@ -82,7 +83,7 @@ typedef struct opj_tcd_cblk_enc {
   opj_tcd_pass_t* passes;	/* information about the passes */
   int x0, y0, x1, y1;		/* dimension of the code-blocks : left upper corner (x0, y0) right low corner (x1,y1) */
   int numbps;
-  int numlenbits;
+  size_t numlenbits;
   int numpasses;		/* number of pass already done for the code-blocks */
   int numpassesinlayers;	/* number of passes in the layer */
   int totalpasses;		/* total number of passes */
@@ -251,7 +252,7 @@ void tcd_malloc_decode_tile(opj_tcd_t *tcd, opj_image_t * image, opj_cp_t * cp, 
 void tcd_makelayer_fixed(opj_tcd_t *tcd, int layno, int final);
 void tcd_rateallocate_fixed(opj_tcd_t *tcd);
 void tcd_makelayer(opj_tcd_t *tcd, int layno, double thresh, int final);
-opj_bool tcd_rateallocate(opj_tcd_t *tcd, unsigned char *dest, int len, opj_codestream_info_t *cstr_info);
+opj_bool tcd_rateallocate(opj_tcd_t *tcd, unsigned char *dest, size_t len, opj_codestream_info_t *cstr_info);
 /**
 Encode a tile from the raw image into a buffer
 @param tcd TCD handle
@@ -261,7 +262,7 @@ Encode a tile from the raw image into a buffer
 @param cstr_info Codestream information structure 
 @return 
 */
-int tcd_encode_tile(opj_tcd_t *tcd, int tileno, unsigned char *dest, int len, opj_codestream_info_t *cstr_info);
+size_t tcd_encode_tile(opj_tcd_t *tcd, int tileno, unsigned char *dest, size_t len, opj_codestream_info_t *cstr_info);
 /**
 Decode a tile from a buffer into a raw image
 @param tcd TCD handle
@@ -270,7 +271,7 @@ Decode a tile from a buffer into a raw image
 @param tileno Number that identifies one of the tiles to be decoded
 @param cstr_info Codestream information structure
 */
-opj_bool tcd_decode_tile(opj_tcd_t *tcd, unsigned char *src, int len, int tileno, opj_codestream_info_t *cstr_info);
+opj_bool tcd_decode_tile(opj_tcd_t *tcd, unsigned char *src, size_t len, int tileno, opj_codestream_info_t *cstr_info);
 /**
 Free the memory allocated for decoding
 @param tcd TCD handle

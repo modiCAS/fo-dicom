@@ -61,8 +61,8 @@ namespace IJGVERS {
 
 	void termDestination(j_compress_ptr cinfo) {
 		JPEGCODEC^ thisPtr = (JPEGCODEC^)JPEGCODEC::This;
-		int count = IJGE_BLOCKSIZE - cinfo->dest->free_in_buffer;
-		thisPtr->MemoryBuffer->Write(thisPtr->DataArray->Data, 0, count);
+		size_t count = IJGE_BLOCKSIZE - cinfo->dest->free_in_buffer;
+		thisPtr->MemoryBuffer->Write(thisPtr->DataArray->Data, 0, (int)count);
 		thisPtr->DataArray = nullptr;
 	}
 
@@ -351,7 +351,7 @@ namespace IJGVERS {
 		struct jpeg_source_mgr pub;
 
 		// number of bytes to skip at start of buffer
-		long skip_bytes;
+		size_t skip_bytes;
 
 		// buffer from which reading will continue as soon as the current buffer is empty
 		unsigned char *next_buffer;

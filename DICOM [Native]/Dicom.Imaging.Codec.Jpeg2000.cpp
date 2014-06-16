@@ -201,7 +201,7 @@ void DicomJpeg2000NativeCodec::Encode(DicomPixelData^ oldPixelData, DicomPixelDa
 			cio = opj_cio_open((opj_common_ptr)cinfo, NULL, 0);
 
 			if (opj_encode(cinfo, cio, image, eparams.index)) {
-				int clen = cio_tell(cio);
+				int clen = (int)cio_tell(cio);
 				array<unsigned char>^ cbuf = gcnew array<unsigned char>(clen);
 				Marshal::Copy((IntPtr)cio->buffer, cbuf, 0, clen);
 

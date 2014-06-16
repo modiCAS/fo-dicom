@@ -75,28 +75,28 @@ Number of bytes written.
 @param bio BIO handle
 @return Returns the number of bytes written
 */
-int bio_numbytes(opj_bio_t *bio);
+size_t bio_numbytes(opj_bio_t *bio);
 /**
 Init encoder
 @param bio BIO handle
 @param bp Output buffer
 @param len Output buffer length 
 */
-void bio_init_enc(opj_bio_t *bio, unsigned char *bp, int len);
+void bio_init_enc(opj_bio_t *bio, unsigned char *bp, size_t len);
 /**
 Init decoder
 @param bio BIO handle
 @param bp Input buffer
 @param len Input buffer length 
 */
-void bio_init_dec(opj_bio_t *bio, unsigned char *bp, int len);
+void bio_init_dec(opj_bio_t *bio, unsigned char *bp, size_t len);
 /**
 Write bits
 @param bio BIO handle
 @param v Value of bits
 @param n Number of bits to write
 */
-void bio_write(opj_bio_t *bio, int v, int n);
+void bio_write(opj_bio_t *bio, size_t v, size_t n);
 /**
 Read bits
 @param bio BIO handle

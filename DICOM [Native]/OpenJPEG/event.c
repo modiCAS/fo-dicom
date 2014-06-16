@@ -101,7 +101,7 @@ opj_bool opj_event_msg(opj_common_ptr cinfo, int event_type, const char *fmt, ..
 
 	if ((fmt != NULL) && (event_mgr != NULL)) {
 		va_list arg;
-		int str_length/*, i, j*/; /* UniPG */
+		size_t str_length/*, i, j*/; /* UniPG */
 		char message[MSG_SIZE];
 		memset(message, 0, MSG_SIZE);
 		/* initialize the optional parameter list */
@@ -109,7 +109,7 @@ opj_bool opj_event_msg(opj_common_ptr cinfo, int event_type, const char *fmt, ..
 		/* check the length of the format string */
 		str_length = (strlen(fmt) > MSG_SIZE) ? MSG_SIZE : strlen(fmt);
 		/* parse the format string and put the result in 'message' */
-		vsprintf(message, fmt, arg); /* UniPG */
+		vsprintf_s(message, str_length, fmt, arg); /* UniPG */
 		/* deinitialize the optional parameter list */
 		va_end(arg);
 

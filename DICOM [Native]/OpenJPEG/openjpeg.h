@@ -544,7 +544,7 @@ typedef struct opj_image {
 	/** 'restricted' ICC profile */
 	unsigned char *icc_profile_buf;
 	/** size of ICC profile */
-	int icc_profile_len;
+	size_t icc_profile_len;
 } opj_image_t;
 
 /**
@@ -582,11 +582,11 @@ Index structure : Information concerning a packet inside tile
 */
 typedef struct opj_packet_info {
 	/** packet start position (including SOP marker if it exists) */
-	int start_pos;
+	size_t start_pos;
 	/** end of packet header position (including EPH marker if it exists)*/
-	int end_ph_pos;
+	size_t end_ph_pos;
 	/** packet end position */
-	int end_pos;
+	size_t end_pos;
 	/** packet distorsion */
 	double disto;
 } opj_packet_info_t;
@@ -600,9 +600,9 @@ typedef struct opj_marker_info_t {
 	/** marker type */
 	unsigned short int type;
 	/** position in codestream */
-	int pos;
+	size_t pos;
 	/** length, marker val included */
-	int len;
+	size_t len;
 } opj_marker_info_t;
 /* <<UniPG */
 
@@ -611,11 +611,11 @@ Index structure : Information concerning tile-parts
 */
 typedef struct opj_tp_info {
 	/** start position of tile part */
-	int tp_start_pos;
+	size_t tp_start_pos;
 	/** end position of tile part header */
-	int tp_end_header;
+	size_t tp_end_header;
 	/** end position of tile part */
-	int tp_end_pos;
+	size_t tp_end_pos;
 	/** start packet of tile part */
 	int tp_start_pack;
 	/** number of packets of tile part */
@@ -631,11 +631,11 @@ typedef struct opj_tile_info {
 	/** number of tile */
 	int tileno;
 	/** start position */
-	int start_pos;
+	size_t start_pos;
 	/** end position of the header */
-	int end_header;
+	size_t end_header;
 	/** end position */
-	int end_pos;
+	size_t end_pos;
 	/** precinct number for each resolution level (width) */
 	int pw[33];
 	/** precinct number for each resolution level (height) */
@@ -705,11 +705,11 @@ typedef struct opj_codestream_info {
 	int maxmarknum;
 /* <<UniPG */
 	/** main header position */
-	int main_head_start;
+	size_t main_head_start;
 	/** main header position */
-	int main_head_end;
+	size_t main_head_end;
 	/** codestream's size */
-	int codestream_size;
+	size_t codestream_size;
 	/** information regarding tiles inside image */
 	opj_tile_info_t *tile;
 } opj_codestream_info_t;
@@ -778,13 +778,13 @@ Get position in byte stream
 @param cio CIO handle
 @return Returns the position in bytes
 */
-OPJ_API int OPJ_CALLCONV cio_tell(opj_cio_t *cio);
+OPJ_API size_t OPJ_CALLCONV cio_tell(opj_cio_t *cio);
 /**
 Set position in byte stream
 @param cio CIO handle
 @param pos Position, in number of bytes, from the beginning of the stream
 */
-OPJ_API void OPJ_CALLCONV cio_seek(opj_cio_t *cio, int pos);
+OPJ_API void OPJ_CALLCONV cio_seek(opj_cio_t *cio, size_t pos);
 
 /* 
 ==========================================================
