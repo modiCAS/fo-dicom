@@ -455,7 +455,6 @@
 		private System.Windows.Forms.ToolStripMenuItem explicitVRBigEndianToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem jPEG2000LosslessToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem jPEGLSLosslessToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
 		private System.Windows.Forms.ToolStripMenuItem rLELosslessToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem jPEG2000Lossyrate80ToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem rate5ToolStripMenuItem;
