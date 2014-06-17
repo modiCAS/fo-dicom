@@ -140,9 +140,10 @@ namespace Dicom {
 
 				using (var source = new FileByteSource(df.File)) {
 					DicomFileReader reader = new DicomFileReader();
-					reader.Read(source,
+					DicomReaderResult result = reader.Read(source,
 						new DicomDatasetReaderObserver(df.FileMetaInfo),
 						new DicomDatasetReaderObserver(df.Dataset));
+					if (result != DicomReaderResult.Success) throw new DicomReaderException(result.ToString());
 
 					df.Format = reader.FileFormat;
 

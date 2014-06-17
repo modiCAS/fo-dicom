@@ -56,117 +56,130 @@ namespace Dicom.IO.Reader {
 			_async.AsyncWaitHandle.WaitOne();
 			if (_exception != null)
 				throw _exception;
-			return _reader.Status;
+			return _result != DicomReaderResult.Success ? _result : _reader.Status;
 		}
 
-		private void ParsePreamble(IByteSource source, object state) {
+		private ReaderResult ParsePreamble(IByteSource source, object state) {
 			try {
-				if (!source.Require(132, ParsePreamble, state))
-					return;
-
-				// mark file origin
-				_source.Mark();
-
-				// test for DICM preamble
-				_source.Skip(128);
-				if (_source.GetUInt8() == 'D' &&
-					_source.GetUInt8() == 'I' &&
-					_source.GetUInt8() == 'C' &&
-					_source.GetUInt8() == 'M')
-					_fileFormat = DicomFileFormat.DICOM3;
-
-				// test for incorrect syntax in file meta info
-				 do {
-					 if (_fileFormat == DicomFileFormat.DICOM3) {
-						 // move milestone to after preamble
-						 _source.Mark();
-					 } else {
-						 // rewind to origin milestone
-						 _source.Rewind();
-					 }
-
-					// test for file meta info
-					var group = _source.GetUInt16();
-
-					if (group > 0x00ff) {
-						_source.Endian = Endian.Big;
-						_syntax = DicomTransferSyntax.ExplicitVRBigEndian;
-
-						group = Endian.Swap(group);
-					}
-
-					if (group > 0x00ff) {
-						// invalid starting tag
-						_fileFormat = DicomFileFormat.Unknown;
-						_source.Rewind();
-						break;
-					}
-
-					if (_fileFormat == DicomFileFormat.Unknown) {
-						if (group == 0x0002)
-							_fileFormat = DicomFileFormat.DICOM3NoPreamble;
-						else
-							_fileFormat = DicomFileFormat.DICOM3NoFileMetaInfo;
-					}
-
-					var element = _source.GetUInt16();
-					var tag = new DicomTag(group, element);
-
-					// test for explicit VR
-					var vrt = Encoding.UTF8.GetBytes(tag.DictionaryEntry.ValueRepresentations[0].Code);
-					var vrs = _source.GetBytes(2);
-
-					if (vrt[0] != vrs[0] || vrt[1] != vrs[1]) {
-						// implicit VR
-						if (_syntax.Endian == Endian.Little)
-							_syntax = DicomTransferSyntax.ImplicitVRLittleEndian;
-						else
-							_syntax = DicomTransferSyntax.ImplicitVRBigEndian;
-					}
-
-					_source.Rewind();
-				} while (_fileFormat == DicomFileFormat.Unknown);
-
-				if (_fileFormat == DicomFileFormat.Unknown)
-					throw new DicomReaderException("Attempted to read invalid DICOM file");
-
-				var obs = new DicomReaderCallbackObserver();
-				if (_fileFormat != DicomFileFormat.DICOM3) {
-					obs.Add(DicomTag.RecognitionCodeRETIRED, (object sender, DicomReaderEventArgs ea) => {
-						try {
-							string code = Encoding.UTF8.GetString(ea.Data.Data, 0, ea.Data.Data.Length);
-							if (code == "ACR-NEMA 1.0")
-								_fileFormat = DicomFileFormat.ACRNEMA1;
-							else if (code == "ACR-NEMA 2.0")
-								_fileFormat = DicomFileFormat.ACRNEMA2;
-						} catch {
-						}
-					});
-				}
-				obs.Add(DicomTag.TransferSyntaxUID, (object sender, DicomReaderEventArgs ea) => {
-					try {
-						string uid = Encoding.UTF8.GetString(ea.Data.Data, 0, ea.Data.Data.Length);
-						_syntax = DicomTransferSyntax.Parse(uid);
-					} catch {
-					}
-				});
-
-				_source.Endian = _syntax.Endian;
-				_reader.IsExplicitVR = _syntax.IsExplicitVR;
-
-				if (_fileFormat == DicomFileFormat.DICOM3NoFileMetaInfo)
-					_reader.BeginRead(_source, new DicomReaderMultiObserver(obs, _dataObserver), null, OnDatasetParseComplete, null);
-				else
-					_reader.BeginRead(_source, new DicomReaderMultiObserver(obs, _fmiObserver), FileMetaInfoStopTag, OnFileMetaInfoParseComplete, null);
+				return ParsePreambleProc(source, state);
 			} catch (Exception e) {
 				if (_exception == null)
 					_exception = e;
 				_result = DicomReaderResult.Error;
+				return ReaderResult.Failure(e);
 			} finally {
 				if (_result != DicomReaderResult.Processing && _result != DicomReaderResult.Suspended) {
 					_async.Set();
 				}
 			}
+		}
+
+		private ReaderResult ParsePreambleProc(IByteSource source, object state) {
+			ReaderResult result = source.Require(132, ParsePreamble, state);
+			if (!result.IsSuccess) {
+				_result = result;
+				return result;
+			}
+
+			// mark file origin
+			_source.Mark();
+
+			// test for DICM preamble
+			_source.Skip(128);
+			if (_source.GetUInt8() == 'D' &&
+				_source.GetUInt8() == 'I' &&
+				_source.GetUInt8() == 'C' &&
+				_source.GetUInt8() == 'M')
+				_fileFormat = DicomFileFormat.DICOM3;
+
+			// test for incorrect syntax in file meta info
+				do {
+					if (_fileFormat == DicomFileFormat.DICOM3) {
+						// move milestone to after preamble
+						_source.Mark();
+					} else {
+						// rewind to origin milestone
+						_source.Rewind();
+					}
+
+				// test for file meta info
+				var group = _source.GetUInt16();
+
+				if (group > 0x00ff) {
+					_source.Endian = Endian.Big;
+					_syntax = DicomTransferSyntax.ExplicitVRBigEndian;
+
+					group = Endian.Swap(group);
+				}
+
+				if (group > 0x00ff) {
+					// invalid starting tag
+					_fileFormat = DicomFileFormat.Unknown;
+					_source.Rewind();
+					break;
+				}
+
+				if (_fileFormat == DicomFileFormat.Unknown) {
+					if (group == 0x0002)
+						_fileFormat = DicomFileFormat.DICOM3NoPreamble;
+					else
+						_fileFormat = DicomFileFormat.DICOM3NoFileMetaInfo;
+				}
+
+				var element = _source.GetUInt16();
+				var tag = new DicomTag(group, element);
+
+				// test for explicit VR
+				var vrt = Encoding.UTF8.GetBytes(tag.DictionaryEntry.ValueRepresentations[0].Code);
+				var vrs = _source.GetBytes(2);
+
+				if (vrt[0] != vrs[0] || vrt[1] != vrs[1]) {
+					// implicit VR
+					if (_syntax.Endian == Endian.Little)
+						_syntax = DicomTransferSyntax.ImplicitVRLittleEndian;
+					else
+						_syntax = DicomTransferSyntax.ImplicitVRBigEndian;
+				}
+
+				_source.Rewind();
+			} while (_fileFormat == DicomFileFormat.Unknown);
+
+			if (_fileFormat == DicomFileFormat.Unknown) {
+				result = ReaderResult.Failure("Attempted to read invalid DICOM file");
+				_result = result;
+				return result;
+			}
+
+			var obs = new DicomReaderCallbackObserver();
+			if (_fileFormat != DicomFileFormat.DICOM3) {
+				obs.Add(DicomTag.RecognitionCodeRETIRED, (object sender, DicomReaderEventArgs ea) => {
+					try {
+						string code = Encoding.UTF8.GetString(ea.Data.Data, 0, ea.Data.Data.Length);
+						if (code == "ACR-NEMA 1.0")
+							_fileFormat = DicomFileFormat.ACRNEMA1;
+						else if (code == "ACR-NEMA 2.0")
+							_fileFormat = DicomFileFormat.ACRNEMA2;
+					} catch {
+					}
+				});
+			}
+			obs.Add(DicomTag.TransferSyntaxUID, (object sender, DicomReaderEventArgs ea) => {
+				try {
+					string uid = Encoding.UTF8.GetString(ea.Data.Data, 0, ea.Data.Data.Length);
+					_syntax = DicomTransferSyntax.Parse(uid);
+				} catch {
+				}
+			});
+
+			_source.Endian = _syntax.Endian;
+			_reader.IsExplicitVR = _syntax.IsExplicitVR;
+
+			if (_fileFormat == DicomFileFormat.DICOM3NoFileMetaInfo)
+				_reader.BeginRead(_source, new DicomReaderMultiObserver(obs, _dataObserver), null, OnDatasetParseComplete, null);
+			else
+				_reader.BeginRead(_source, new DicomReaderMultiObserver(obs, _fmiObserver), FileMetaInfoStopTag, OnFileMetaInfoParseComplete, null);
+
+			return ReaderResult.Success();
 		}
 
 		private void OnFileMetaInfoParseComplete(IAsyncResult result) {
