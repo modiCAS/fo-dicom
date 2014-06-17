@@ -34,7 +34,7 @@ namespace Dicom.IO.Reader {
 		private IDicomReaderObserver _observer;
 		private EventAsyncResult _async;
 		private Exception _exception;
-		private volatile DicomReaderResult _result;
+		private volatile ReaderResult _result;
 
 		private bool _explicit;
 		private bool _badPrivateSequence;
@@ -60,11 +60,11 @@ namespace Dicom.IO.Reader {
 			set { _explicit = value; }
 		}
 
-		public DicomReaderResult Status {
+		public ReaderResult Status {
 			get { return _result; }
 		}
 
-		public DicomReaderResult Read(IByteSource source, IDicomReaderObserver observer, DicomTag stop = null) {
+		public ReaderResult Read(IByteSource source, IDicomReaderObserver observer, DicomTag stop = null) {
 			return EndRead(BeginRead(source, observer, stop, null, null));
 		}
 
@@ -78,11 +78,9 @@ namespace Dicom.IO.Reader {
 			return _async;
 		}
 
-		public DicomReaderResult EndRead(IAsyncResult result) {
+		public ReaderResult EndRead(IAsyncResult result) {
 			_async.AsyncWaitHandle.WaitOne();
-			if (_exception != null)
-				throw _exception;
-			return _result;
+			return _exception != null ? ReaderResult.Failure(_exception) : _result;
 		}
 
 		private void ParseProc(object state) {
@@ -93,18 +91,16 @@ namespace Dicom.IO.Reader {
 			try {
 				return ParseDatasetProc(source, state);
 			} catch (Exception e) {
-				_exception = e;
-				_result = DicomReaderResult.Error;
 				return ReaderResult.Failure(e);
 			} finally {
-				if (_result != DicomReaderResult.Processing && _result != DicomReaderResult.Suspended) {
+				if (!_result.IsBusy) {
 					_async.Set();
 				}
 			}
 		}
 
 		private ReaderResult ParseDatasetProc(IByteSource source, object state) {
-			_result = DicomReaderResult.Processing;
+			_result = ReaderResult.Processing();
 
 			while (!source.IsEOF && !source.HasReachedMilestone() && _result == DicomReaderResult.Processing) {
 				if (_state == ParseState.Tag) {
@@ -112,8 +108,7 @@ namespace Dicom.IO.Reader {
 
 					ReaderResult result = source.Require(4, ParseDataset, state);
 					if (!result.IsSuccess) {
-						_result = result;
-						return result;
+						return _result = result;
 					}
 
 					ushort group = source.GetUInt16();
@@ -134,8 +129,7 @@ namespace Dicom.IO.Reader {
 						_tag = _entry.Tag; // Use dictionary tag
 
 					if (_stop != null && _tag.CompareTo(_stop) >= 0) {
-						_result = DicomReaderResult.Stopped;
-						return ReaderResult.Stopped();
+						return _result = ReaderResult.Stopped();
 					}
 
 					_state = ParseState.VR;
@@ -151,8 +145,7 @@ namespace Dicom.IO.Reader {
 					if (IsExplicitVR) {
 						ReaderResult result = source.Require(2, ParseDataset, state);
 						if ( !result.IsSuccess) {
-							_result = result;
-							return result;
+							return _result = result;
 						}
 
 						byte[] bytes = source.GetBytes(2);
@@ -197,8 +190,7 @@ namespace Dicom.IO.Reader {
 					if (_tag == DicomTag.Item || _tag == DicomTag.ItemDelimitationItem || _tag == DicomTag.SequenceDelimitationItem) {
 						ReaderResult result = source.Require(4, ParseDataset, state);
 						if (!result.IsSuccess) {
-							_result = result;
-							return result;
+							return _result = result;
 						}
 
 						_length = source.GetUInt32();
@@ -211,16 +203,14 @@ namespace Dicom.IO.Reader {
 						if (_vr.Is16bitLength) {
 							ReaderResult result = source.Require(2, ParseDataset, state);
 							if (!result.IsSuccess) {
-								_result = result;
-								return result;
+								return _result = result;
 							}
 
 							_length = source.GetUInt16();
 						} else {
 							ReaderResult result = source.Require(6, ParseDataset, state);
 							if (!result.IsSuccess) {
-								_result = result;
-								return result;
+								return _result = result;
 							}
 
 							source.Skip(2);
@@ -229,8 +219,7 @@ namespace Dicom.IO.Reader {
 					} else {
 						ReaderResult result = source.Require(4, ParseDataset, state);
 						if (!result.IsSuccess) {
-							_result = result;
-							return result;
+							return _result = result;
 						}
 
 						_length = source.GetUInt32();
@@ -297,8 +286,7 @@ namespace Dicom.IO.Reader {
 
 					ReaderResult result = source.Require(_length, ParseDataset, state);
 					if (!result.IsSuccess) {
-						_result = result;
-						return result;
+						return _result = result;
 					}
 
 					IByteBuffer buffer = source.GetBuffer(_length);
@@ -328,8 +316,7 @@ namespace Dicom.IO.Reader {
 				return _result;
 
 			// end of processing
-			_result = DicomReaderResult.Success;
-			return ReaderResult.Success();
+			return _result = ReaderResult.Success();
 		}
 
 		private ReaderResult ParseItemSequence(IByteSource source, object state) {
@@ -337,8 +324,7 @@ namespace Dicom.IO.Reader {
 				return ParseItemSequenceProc(source, state);
 			} catch (Exception e) {
 				_exception = e;
-				_result = DicomReaderResult.Error;
-				return ReaderResult.Failure(e);
+				return _result = ReaderResult.Failure(_exception);
 			} finally {
 				if (_result != DicomReaderResult.Processing && _result != DicomReaderResult.Suspended) {
 					_async.Set();
@@ -347,7 +333,7 @@ namespace Dicom.IO.Reader {
 		}
 
 		private ReaderResult ParseItemSequenceProc(IByteSource source, object state) {
-			_result = DicomReaderResult.Processing;
+			_result = ReaderResult.Processing();
 
 			while (!source.IsEOF && !source.HasReachedMilestone()) {
 				if (_state == ParseState.Tag) {
@@ -355,8 +341,7 @@ namespace Dicom.IO.Reader {
 
 					ReaderResult result = source.Require(8, ParseItemSequence, state);
 					if (!result.IsSuccess) {
-						_result = result;
-						return result;
+						return _result = result;
 					}
 
 					ushort group = source.GetUInt16();
@@ -397,8 +382,7 @@ namespace Dicom.IO.Reader {
 					if (_length != UndefinedLength) {
 						ReaderResult result = source.Require(_length, ParseItemSequence, state);
 						if (!result.IsSuccess) {
-							_result = result;
-							return result;
+							return _result = result;
 						}
 
 						source.PushMilestone(_length);
@@ -478,8 +462,7 @@ namespace Dicom.IO.Reader {
 				return ParseFragmentSequenceProc(source, state);
 			} catch (Exception e) {
 				_exception = e;
-				_result = DicomReaderResult.Error;
-				return ReaderResult.Failure(e);
+				return _result = ReaderResult.Failure(_exception);
 			} finally {
 				if (_result != DicomReaderResult.Processing && _result != DicomReaderResult.Suspended) {
 					_async.Set();
@@ -496,8 +479,7 @@ namespace Dicom.IO.Reader {
 
 					ReaderResult result = source.Require(8, ParseFragmentSequence, state);
 					if (!result.IsSuccess) {
-						_result = result;
-						return result;
+						return _result = result;
 					}
 
 					ushort group = source.GetUInt16();
@@ -526,8 +508,7 @@ namespace Dicom.IO.Reader {
 				if (_state == ParseState.Value) {
 					ReaderResult result = source.Require(_length, ParseFragmentSequence, state);
 					if (!result.IsSuccess) {
-						_result = result;
-						return result;
+						return _result = result;
 					}
 
 					IByteBuffer buffer = source.GetBuffer(_length);
