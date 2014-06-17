@@ -29,6 +29,10 @@ namespace Dicom.IO {
 			get { return _exception; }
 		}
 
+		public bool IsBusy {
+			get { return _result == DicomReaderResult.Processing || _result == DicomReaderResult.Suspended; }
+		}
+
 		public bool IsSuccess {
 			get { return _result == DicomReaderResult.Success; }
 		}
@@ -63,6 +67,10 @@ namespace Dicom.IO {
 
 		public static implicit operator ReaderResult(DicomReaderResult result) {
 			return new ReaderResult(result);
+		}
+
+		public static ReaderResult Processing() {
+			return new ReaderResult(DicomReaderResult.Processing);
 		}
 	}
 }

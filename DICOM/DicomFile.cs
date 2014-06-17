@@ -125,58 +125,88 @@ namespace Dicom {
 				throw eventResult.InternalState as Exception;
 		}
 
-        /// <summary>
-        /// Reads the specified filename and returns a DicomFile object.  Note that the values for large
-        /// DICOM elements (e.g. PixelData) are read in "on demand" to conserve memory.  Large DICOM elements
-        /// are determined by their size in bytes - see the default value for this in the FileByteSource._largeObjectSize
-        /// </summary>
-        /// <param name="fileName">The filename of the DICOM file</param>
-        /// <returns>DicomFile instance</returns>
+		/// <summary>
+		/// Reads the specified filename and returns a DicomFile object.  Note that the values for large
+		/// DICOM elements (e.g. PixelData) are read in "on demand" to conserve memory.  Large DICOM elements
+		/// are determined by their size in bytes - see the default value for this in the FileByteSource._largeObjectSize
+		/// </summary>
+		/// <param name="fileName">The filename of the DICOM file</param>
+		/// <returns>DicomFile instance</returns>
 		public static DicomFile Open(string fileName) {
 			DicomFile df = new DicomFile();
 
 			try {
 				df.File = new FileReference(fileName);
-
 				using (var source = new FileByteSource(df.File)) {
-					DicomFileReader reader = new DicomFileReader();
-					DicomReaderResult result = reader.Read(source,
-						new DicomDatasetReaderObserver(df.FileMetaInfo),
-						new DicomDatasetReaderObserver(df.Dataset));
-					if (result != DicomReaderResult.Success) throw new DicomReaderException(result.ToString());
-
-					df.Format = reader.FileFormat;
-
-					df.Dataset.InternalTransferSyntax = reader.Syntax;
-
-					return df;
+					return Open(source, df);
 				}
+			} catch (DicomFileException) {
+				throw;
 			} catch (Exception e) {
 				throw new DicomFileException(df, e.Message, e);
 			}
 		}
 
-        public static DicomFile Open(Stream stream)
-        {
-            var df = new DicomFile();
+		public static DicomFile Open(Stream stream) {
+			return Open(new StreamByteSource(stream), new DicomFile());
+		}
 
+		private static DicomFile Open(IByteSource source, DicomFile df) {
+			var reader = new DicomFileReader();
+			ReaderResult result;
 			try {
-				var source = new StreamByteSource(stream);
-
-				var reader = new DicomFileReader();
-				reader.Read(source,
+				result = reader.Read(source,
 					new DicomDatasetReaderObserver(df.FileMetaInfo),
 					new DicomDatasetReaderObserver(df.Dataset));
-
-				df.Format = reader.FileFormat;
-
-				df.Dataset.InternalTransferSyntax = reader.Syntax;
-
-				return df;
 			} catch (Exception e) {
 				throw new DicomFileException(df, e.Message, e);
 			}
-        }
+
+			if (!result.IsSuccess) throw new DicomFileException(df, result.Message, result.Exception);
+
+			df.Format = reader.FileFormat;
+			df.Dataset.InternalTransferSyntax = reader.Syntax;
+			return df;
+		}
+
+		public static ReaderResult TryOpen(string fileName, out DicomFile file) {
+			try {
+				var fileRef = new FileReference(fileName);
+				using (var source = new FileByteSource(fileRef)) {
+					ReaderResult result = TryOpen(source, out file);
+					if (file != null) file.File = fileRef;
+					return result;
+				}
+			} catch (Exception e) {
+				file = null;
+				return ReaderResult.Failure(e);
+			}
+		}
+
+		public static ReaderResult TryOpen(Stream stream, out DicomFile file) {
+			return TryOpen(new StreamByteSource(stream), out file);
+		}
+
+		private static ReaderResult TryOpen(IByteSource source, out DicomFile file) {
+			var reader = new DicomFileReader();
+			var df = new DicomFile();
+			file = null;
+			ReaderResult result;
+			try {
+				result = reader.Read(source,
+					new DicomDatasetReaderObserver(df.FileMetaInfo),
+					new DicomDatasetReaderObserver(df.Dataset));
+			} catch (Exception e) {
+				return ReaderResult.Failure(e);
+			}
+
+			if (!result.IsSuccess) return result;
+
+			df.Format = reader.FileFormat;
+			df.Dataset.InternalTransferSyntax = reader.Syntax;
+			file = df;
+			return result;
+		}
 
         public static IAsyncResult BeginOpen(string fileName, AsyncCallback callback, object state)
         {

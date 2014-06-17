@@ -10,7 +10,7 @@ namespace Dicom.IO.Reader {
 
 		private IDicomReader _reader;
 		private EventAsyncResult _async;
-		private DicomReaderResult _result;
+		private ReaderResult _result;
 		private Exception _exception;
 
 		private IByteSource _source;
@@ -38,7 +38,7 @@ namespace Dicom.IO.Reader {
 			get { return _syntax; }
 		}
 
-		public DicomReaderResult Read(IByteSource source, IDicomReaderObserver fileMetaInfo, IDicomReaderObserver dataset) {
+		public ReaderResult Read(IByteSource source, IDicomReaderObserver fileMetaInfo, IDicomReaderObserver dataset) {
 			return EndRead(BeginRead(source, fileMetaInfo, dataset, null, null));
 		}
 
@@ -52,10 +52,9 @@ namespace Dicom.IO.Reader {
 			return _async;
 		}
 
-		public DicomReaderResult EndRead(IAsyncResult result) {
+		public ReaderResult EndRead(IAsyncResult result) {
 			_async.AsyncWaitHandle.WaitOne();
-			if (_exception != null)
-				throw _exception;
+			if (_exception != null) return ReaderResult.Failure(_exception);
 			return _result != DicomReaderResult.Success ? _result : _reader.Status;
 		}
 
@@ -65,8 +64,7 @@ namespace Dicom.IO.Reader {
 			} catch (Exception e) {
 				if (_exception == null)
 					_exception = e;
-				_result = DicomReaderResult.Error;
-				return ReaderResult.Failure(e);
+				return _result = ReaderResult.Failure(_exception);
 			} finally {
 				if (_result != DicomReaderResult.Processing && _result != DicomReaderResult.Suspended) {
 					_async.Set();
@@ -77,8 +75,7 @@ namespace Dicom.IO.Reader {
 		private ReaderResult ParsePreambleProc(IByteSource source, object state) {
 			ReaderResult result = source.Require(132, ParsePreamble, state);
 			if (!result.IsSuccess) {
-				_result = result;
-				return result;
+				return _result = result;
 			}
 
 			// mark file origin
@@ -145,9 +142,7 @@ namespace Dicom.IO.Reader {
 			} while (_fileFormat == DicomFileFormat.Unknown);
 
 			if (_fileFormat == DicomFileFormat.Unknown) {
-				result = ReaderResult.Failure("Attempted to read invalid DICOM file");
-				_result = result;
-				return result;
+				return _result = ReaderResult.Failure("Attempted to read invalid DICOM file");
 			}
 
 			var obs = new DicomReaderCallbackObserver();
@@ -197,7 +192,7 @@ namespace Dicom.IO.Reader {
 			} catch (Exception e) {
 				if (_exception == null)
 					_exception = e;
-				_result = DicomReaderResult.Error;
+				_result = ReaderResult.Failure(_exception);
 			} finally {
 				if (_result == DicomReaderResult.Error) {
 					_async.Set();
@@ -211,7 +206,7 @@ namespace Dicom.IO.Reader {
 			} catch (Exception e) {
 				if (_exception == null)
 					_exception = e;
-				_result = DicomReaderResult.Error;
+				_result = ReaderResult.Failure(_exception);
 			} finally {
 				_async.Set();
 			}

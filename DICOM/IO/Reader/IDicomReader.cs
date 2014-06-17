@@ -20,13 +20,13 @@ namespace Dicom.IO.Reader {
 			set;
 		}
 
-		DicomReaderResult Status {
+		ReaderResult Status {
 			get;
 		}
 
-		DicomReaderResult Read(IByteSource source, IDicomReaderObserver observer, DicomTag stop=null);
+		ReaderResult Read(IByteSource source, IDicomReaderObserver observer, DicomTag stop=null);
 
 		IAsyncResult BeginRead(IByteSource source, IDicomReaderObserver observer, DicomTag stop, AsyncCallback callback, object state);
-		DicomReaderResult EndRead(IAsyncResult result);
+		ReaderResult EndRead(IAsyncResult result);
 	}
 }
