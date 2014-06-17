@@ -6,7 +6,7 @@ using System.Text;
 using Dicom.IO.Buffer;
 
 namespace Dicom.IO {
-	public delegate void ByteSourceCallback(IByteSource source, object state);
+	public delegate ReaderResult ByteSourceCallback(IByteSource source, object state);
 
 	public interface IByteSource {
 		Endian Endian {
@@ -57,7 +57,7 @@ namespace Dicom.IO {
 		void PopMilestone();
 		bool HasReachedMilestone();
 
-		bool Require(uint count);
-		bool Require(uint count, ByteSourceCallback callback, object state);
+		ReaderResult Require(uint count);
+		ReaderResult Require(uint count, ByteSourceCallback callback, object state);
 	}
 }

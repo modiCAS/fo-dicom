@@ -246,26 +246,26 @@ namespace Dicom.IO.Buffer {
 			}
 		}
 
-		public bool Require(uint count) {
+		public ReaderResult Require(uint count) {
 			return Require(count, null, null);
 		}
 
-		public bool Require(uint count, ByteSourceCallback callback, object state) {
+		public ReaderResult Require(uint count, ByteSourceCallback callback, object state) {
 			lock (_lock) {
 				if ((_position + count) <= _length)
-					return true;
+					return ReaderResult.Success();
 
 				if (_fixed)
-					throw new DicomIoException("Requested {0} bytes past end of byte source.", count);
+					return ReaderResult.Failure("Requested {0} bytes past end of byte source.", count);
 
 				if (callback == null)
-					throw new DicomIoException("Requested {0} bytes past end of byte source without providing a callback.", count);
+					return ReaderResult.Failure("Requested {0} bytes past end of byte source without providing a callback.", count);
 
 				_required = count;
 				_callback = callback;
 				_callbackState = state;
 
-				return false;
+				return ReaderResult.Suspend();
 			}
 		}
 

@@ -143,16 +143,15 @@ namespace Dicom.IO {
 			}
 		}
 
-		public bool Require(uint count) {
+		public ReaderResult Require(uint count) {
 			return Require(count, null, null);
 		}
 
-		public bool Require(uint count, ByteSourceCallback callback, object state) {
+		public ReaderResult Require(uint count, ByteSourceCallback callback, object state) {
 			lock (_lock) {
-				if ((_stream.Length - _stream.Position) >= count)
-					return true;
-
-				throw new DicomIoException("Requested {0} bytes past end of fixed length stream.", count);
+				return (_stream.Length - _stream.Position) >= count
+					? ReaderResult.Success()
+					: ReaderResult.Failure("Requested {0} bytes past end of fixed length stream.", count);
 			}
 		}
 	}
