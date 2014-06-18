@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2012 Anders Gustafsson, Cureos AB.
 // Licensed under the Microsoft Public License (MS-PL).
 
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -9,7 +10,7 @@ using Dicom.Helpers;
 
 namespace Dicom.Imaging.Mathematics
 {
-    [TestClass]
+    [TestClass, ExcludeFromCodeCoverage]
     public class Point2Tests
     {
 		[TestMethod]

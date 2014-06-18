@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Dicom;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -8,7 +9,7 @@ namespace DICOM__Unit_Tests_
     ///     This is a test class for DicomTagTest and is intended
     ///     to contain all DicomTagTest Unit Tests
     /// </summary>
-    [TestClass]
+    [TestClass, ExcludeFromCodeCoverage]
     public class DicomTagTest
     {
         /// <summary>

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2012 Anders Gustafsson, Cureos AB.
 // Licensed under the Microsoft Public License (MS-PL).
 
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -9,6 +10,7 @@ using System.Xml;
 
 namespace Dicom.Helpers
 {
+	[ExcludeFromCodeCoverage]
     public static class SerializationExtensions
     {
         public static T GetDataContractSerializerDeserializedObject<T>(this T tag)

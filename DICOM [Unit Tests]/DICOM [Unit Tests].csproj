@@ -61,6 +61,10 @@
     <Compile Include="DicomTagTest.cs" />
     <Compile Include="Helpers\SerializationExtensions.cs" />
     <Compile Include="Imaging\Mathematics\Point2Tests.cs" />
+    <Compile Include="IO\Buffer\TestByteBufferByteSource.cs" />
+    <Compile Include="IO\TestFileByteSource.cs" />
+    <Compile Include="IO\TestIByteSource.cs" />
+    <Compile Include="IO\TestStreamByteSource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -69,6 +73,12 @@
       <Name>DICOM</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="[Test Data]\256byte.dcm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

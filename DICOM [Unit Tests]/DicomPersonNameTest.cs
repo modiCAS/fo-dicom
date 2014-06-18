@@ -1,17 +1,16 @@
-﻿using Dicom;
+﻿using System.Diagnostics.CodeAnalysis;
+using Dicom;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Text;
 
 namespace DICOM__Unit_Tests_
 {
-    
-    
     /// <summary>
     ///This is a test class for DicomPersonNameTest and is intended
     ///to contain all DicomPersonNameTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass, ExcludeFromCodeCoverage]
     public class DicomPersonNameTest
     {
 
