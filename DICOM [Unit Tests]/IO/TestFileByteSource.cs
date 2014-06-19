@@ -4,16 +4,14 @@ using Dicom.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DICOM__Unit_Tests_.IO {
+	/// <summary>
+	/// Unit tests for the file byte source.
+	/// </summary>
 	[TestClass, ExcludeFromCodeCoverage]
 	public class TestFileByteSource : TestIByteSource<FileByteSource> {
-		private static string GetTestDataPath(int length) {
-			return string.Format("[Test Data]/{0}byte.dcm", length);
-		}
-
-		private static bool HasTestData(int length) {
-			return File.Exists(GetTestDataPath(length));
-		}
-
+		/// <summary>
+		/// Test what happens if someone tries to dispose the source twice.
+		/// </summary>
 		[TestMethod]
 		public void TestDoubleDispose() {
 			var source = CreateByteSource(256);
@@ -22,9 +20,9 @@ namespace DICOM__Unit_Tests_.IO {
 		}
 
 		protected override FileByteSource CreateByteSource(int length) {
-			if (!HasTestData(length))
-				Assert.Inconclusive("No test data file {0} available.", GetTestDataPath(length));
-			return new FileByteSource(new FileReference(GetTestDataPath(length)));
+			if (!TestData.IsAvailable(length))
+				Assert.Inconclusive("No test data file {0} available.", TestData.GetPath(length));
+			return new FileByteSource(new FileReference(TestData.GetPath(length)));
 		}
 
 		protected override string GetSourceName() {

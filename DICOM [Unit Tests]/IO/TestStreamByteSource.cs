@@ -4,6 +4,9 @@ using Dicom.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DICOM__Unit_Tests_.IO {
+	/// <summary>
+	/// Unit tests for the stream byte source.
+	/// </summary>
 	[TestClass, ExcludeFromCodeCoverage]
 	public class TestStreamByteSource : TestIByteSource<StreamByteSource> {
 		protected override StreamByteSource CreateByteSource(int length) {

@@ -62,10 +62,12 @@
     <Compile Include="Helpers\SerializationExtensions.cs" />
     <Compile Include="Imaging\Mathematics\Point2Tests.cs" />
     <Compile Include="IO\Buffer\TestByteBufferByteSource.cs" />
+    <Compile Include="TestData.cs" />
     <Compile Include="IO\TestFileByteSource.cs" />
     <Compile Include="IO\TestIByteSource.cs" />
     <Compile Include="IO\TestStreamByteSource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestDicomFile.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DICOM\DICOM.csproj">
@@ -75,7 +77,28 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="[Test Data]\256byte.dcm">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="[Test Data]\acrnema1.dcm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="[Test Data]\acrnema2.dcm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="[Test Data]\acrnema0.dcm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="[Test Data]\nometainfo.dcm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="[Test Data]\nometainfomin.dcm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="[Test Data]\nopreamble.dcm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="[Test Data]\empty.dcm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup />
