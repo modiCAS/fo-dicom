@@ -11,7 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DICOM__Unit_Tests_ {
 	/// <summary>
-	/// Unit tests for the dicom file.
+	/// Unit tests for the DICOM file class.
 	/// </summary>
 	[TestClass, ExcludeFromCodeCoverage]
 	public class TestDicomFile {
