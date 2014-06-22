@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 namespace DICOM__Unit_Tests_ {
 	/// <summary>
 	/// Unit test data utilities.
 	/// </summary>
+	[ExcludeFromCodeCoverage]
 	public static class TestData {
 		/// <summary>
 		/// Compute a test data path based on specified byte length.
