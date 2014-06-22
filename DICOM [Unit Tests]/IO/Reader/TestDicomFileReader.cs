@@ -16,10 +16,27 @@ namespace DICOM__Unit_Tests_.IO.Reader {
 	[TestClass, ExcludeFromCodeCoverage]
 	public class TestDicomFileReader {
 		/// <summary>
-		/// Test the Read method on a blocking byte source.
+		/// Test the begin read method on an empty blocking source.
 		/// </summary>
 		[TestMethod]
 		public void TestReadFromBlockingSource() {
+			DicomFile df = new DicomFile();
+			var source = new ByteBufferByteSource();
+			var reader = new DicomFileReader();
+
+			object state = new object();
+			IAsyncResult result = reader.BeginRead(source,
+				new DicomDatasetReaderObserver(df.FileMetaInfo),
+				new DicomDatasetReaderObserver(df.Dataset),
+				TestCallback, state);
+			Assert.IsNotNull(result);
+		}
+
+		/// <summary>
+		/// Test the begin read method on a blocking byte source providing incomplete metadata asynchronously.
+		/// </summary>
+		[TestMethod]
+		public void TestReadFromBlockingSourceWithIncompleteMetadataOnly() {
 			DicomFile df = new DicomFile();
 			var source = new ByteBufferByteSource();
 			var reader = new DicomFileReader();
@@ -31,7 +48,26 @@ namespace DICOM__Unit_Tests_.IO.Reader {
 				TestCallback, state);
 			Assert.IsNotNull(result);
 
-			source.Add(new FileByteSource(new FileReference("[Test Data]/metaonly.dcm")).GetBuffer(0x15B), false);
+			source.Add(new FileByteSource(new FileReference("[Test Data]/metaonly.dcm")).GetBuffer(0x15A), true);
+		}
+
+		/// <summary>
+		/// Test the begin read method on a blocking byte source providing complete metadata asynchronously.
+		/// </summary>
+		[TestMethod]
+		public void TestReadFromBlockingSourceWithCompleteMetadataOnly() {
+			DicomFile df = new DicomFile();
+			var source = new ByteBufferByteSource();
+			var reader = new DicomFileReader();
+
+			object state = new object();
+			IAsyncResult result = reader.BeginRead(source,
+				new DicomDatasetReaderObserver(df.FileMetaInfo),
+				new DicomDatasetReaderObserver(df.Dataset),
+				TestCallback, state);
+			Assert.IsNotNull(result);
+
+			source.Add(new FileByteSource(new FileReference("[Test Data]/metaonly.dcm")).GetBuffer(0x15B), true);
 		}
 
 		private void TestCallback(IAsyncResult ar) {
